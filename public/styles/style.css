@@ -1,0 +1,20 @@
+.post-form{
+    display: inline-block;
+    width: 80%;
+    margin-left: 10%;
+}
+
+.blog-content{
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    justify-content: center;
+    margin-left: 10%;
+}
+
+.view-banner{
+    margin-bottom: 5vh;
+    max-height: 80vh;
+}
+
+

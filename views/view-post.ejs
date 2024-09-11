@@ -1,0 +1,10 @@
+<%- include('partials/header.ejs') %>
+<div class = "blog-content">
+    
+    <h1 class="text-start"><%= title %></h1>
+    <h4 class="text-end"><%= date %></h4>
+    <img src= <%= imgSrc %> class = "img-thumbnail img-fluid view-banner" alt= <%= title %>>
+    <p class="text-start"><%= content %></p>
+
+</div>
+<%- include("partials/footer.ejs") %> 
