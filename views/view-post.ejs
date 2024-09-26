@@ -3,6 +3,15 @@
     
     <h1 class="text-start"><%= title %></h1>
     <h4 class="text-end"><%= date %></h4>
+    <div >
+        <% if (locals.disabled) { %>
+            <button type = "button" class = "btn btn-outline-success <%= disabled %>">Edit</button>
+            <button type = "button" class = "btn btn-outline-danger <%= disabled %>">Delete</button>
+        <% } else { %>
+            <button type = "button" id = <%= bid %> class = "btn btn-outline-success edit-button">Edit</button>
+            <button type = "button" id = <%= bid %> class = "btn btn-outline-danger delete-button">Delete</button>
+        <% } %>
+     </div>
     <img src= <%= imgSrc %> class = "img-thumbnail img-fluid view-banner" alt= <%= title %>>
     <p class="text-start"><%= content %></p>
 

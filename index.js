@@ -1,5 +1,6 @@
 import express from "express";
 import { dirname } from "path";
+import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
 import fs from "fs";
@@ -16,17 +17,20 @@ const storage = multer.diskStorage({
     cb(null, "./public/images/uploads");
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname);
+    const name = file.originalname;
+    const filename = name.replaceAll(" ", "_");
+    cb(null, filename);
   },
 });
 
 const upload = multer({ storage: storage });
 
-
+//Home Page
 app.get("/", (req, res) => {
   res.render("index.ejs");
 });
 
+//Blog-Menu
 app.get("/blogs", (req, res) => {
   fs.readFile("./content.json", "utf-8", (err, jsonContent) => {
     if (err) {
@@ -36,7 +40,7 @@ app.get("/blogs", (req, res) => {
     try {
       const blogsContent = JSON.parse(jsonContent);
       res.render("blogs.ejs", {
-        blogCards: blogsContent
+        blogCards: blogsContent,
       });
     } catch (parseError) {
       console.error("Error parsing JSON:", parseError);
@@ -44,7 +48,7 @@ app.get("/blogs", (req, res) => {
   });
 });
 
-
+//reading particular blog
 app.get("/view", (req, res) => {
   let reqData = req.query.id;
   console.log(reqData);
@@ -63,12 +67,13 @@ app.get("/view", (req, res) => {
   });
 });
 
+//posting blog form
 app.get("/post", (req, res) => {
   res.render("post.ejs");
 });
 
+//posting blog
 app.post("/submit", upload.single("imgSrc"), (req, res) => {
-
   fs.readFile("./content.json", "utf-8", (err, jsonString) => {
     if (err) {
       console.error("Error while reading data:", err);
@@ -78,11 +83,13 @@ app.post("/submit", upload.single("imgSrc"), (req, res) => {
     try {
       const blogsContent = JSON.parse(jsonString);
       let blog_ids = blogsContent[blogsContent.length - 1].bid;
+      const name = req.file.originalname;
+      const filename = name.replaceAll(" ", "_");
       const uploadData = {
-        bid: blog_ids+1,
-        imgSrc: "/images/uploads/" + req.file.originalname,
+        bid: Number(blog_ids) + 1,
+        imgSrc: "/images/uploads/" + filename,
         title: req.body.title,
-        date: new Date(),
+        date: new Date().toLocaleDateString(),
         content: req.body.content,
       };
       blogsContent.push(uploadData);
@@ -102,7 +109,121 @@ app.post("/submit", upload.single("imgSrc"), (req, res) => {
   res.redirect("/blogs");
 });
 
+//edit and update a blog
+app.get("/edit", (req, res) => {
+  const id = req.query.id;
+  console.log("Edit blog ID: ", id);
+  let blogsContent;
+  fs.readFile("./content.json", "utf-8", (err, jsonContent) => {
+    if (err) {
+      console.log(err, " Error in retrireving data");
+    }
+    try {
+      blogsContent = JSON.parse(jsonContent);
+      console.log(blogsContent[id - 1]);
+      res.render("edit-post.ejs", blogsContent[id - 1]);
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+    }
+  });
+});
+//update the data in json file
+app.post("/update", upload.single("imgSrc"), (req, res) => {
+  let id = req.query.id;
+  fs.readFile("./content.json", "utf-8", (err, jsonString) => {
+    if (err) {
+      console.error("Error while reading data:", err);
+      return;
+    }
 
+    try {
+      const blogsContent = JSON.parse(jsonString);
+      const uploadData = blogsContent[id - 1];
+
+      if (req.file) {
+        const filename = req.file.filename; // This is the new filename after upload
+        const oldImagePath = path.join(
+          __dirname,
+          "public",
+          blogsContent[id - 1].imgSrc
+        );
+
+        // Update the image path in the JSON
+        uploadData.imgSrc = "/images/uploads/" + filename;
+
+        // Delete the old image if it exists
+        if (fs.existsSync(oldImagePath)) {
+          fs.unlinkSync(oldImagePath);
+        }
+      }
+      // Handle other updates (e.g., title, content)
+      if (req.body.title) {
+        uploadData.title = req.body.title;
+      }
+      if (req.body.content) {
+        uploadData.content = req.body.content;
+      }
+      uploadData.date = new Date().toLocaleDateString();
+
+      blogsContent[id - 1] = uploadData;
+      const updatedContent = JSON.stringify(blogsContent, null, 2);
+
+      fs.writeFile("./content.json", updatedContent, (writeErr) => {
+        if (writeErr) {
+          console.error("Error while writing data:", writeErr);
+        } else {
+          console.log("Blog data successfully updated.");
+        }
+      });
+    } catch (parseError) {
+      console.error("Error parsing JSON:", parseError);
+    }
+  });
+
+  res.redirect("/blogs");
+});
+
+//deleting a blog.
+
+app.get("/delete", (req, res) => {
+  const id = req.query.id;
+  let blogsContent;
+  fs.readFile("./content.json", "utf-8", (err, jsonContent) => {
+    if (err) {
+      console.log(err);
+      return;
+    }
+    try {
+      blogsContent = JSON.parse(jsonContent);
+      const blog = blogsContent[id - 1];
+      blogsContent.splice(id - 1, 1);
+      for (let i = 6; i < blogsContent.length; i++) {
+        blogsContent[i].bid = i + 1;
+      }
+      fs.unlink(path.join(__dirname, "public", blog.imgSrc), (err) => {
+        console.log("related files are deleted");
+      });
+      fs.writeFile(
+        "./content.json",
+        JSON.stringify(blogsContent, null, 2),
+        (writeErr) => {
+          if (writeErr) {
+            console.error("Error while writing data:", writeErr);
+          } else {
+            console.log("Blog data successfully updated.");
+          }
+        }
+      );
+      alert();
+    } catch (parseError) {
+      console.log(err);
+      return;
+    }
+  });
+  res.redirect("/blogs");
+});
+
+//about page
 app.get("/about", (req, res) => {
   res.render("about.ejs");
 });

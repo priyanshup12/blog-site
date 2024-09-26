@@ -1,16 +1,15 @@
 <%- include('partials/header.ejs') %>
 
 <div class="post-form">
-  <form action="/submit" method="POST" enctype="multipart/form-data">
+  <form action="/update?id=<%= bid %>" method="POST" enctype="multipart/form-data">
     <div class="mb-3">
-      <label for="title" class="title">Title</label>
+      <label for="title" class="title" value ="<%= title %>">Title</label>
       <input
         type="text"
         class="form-control"
         id="title"
         name="title"
         placeholder="Blog Title"
-        required
       />
     </div>
 
@@ -21,18 +20,19 @@
         class="form-control"
         id="imgSrc"
         name="imgSrc"
-        required
       />
     </div>
 
     <div class="mb-3">
-      <label for="content" class="form-label">Blog Content</label>
+      <label for="content" class="form-label" value = "<%= content %>">
+        Blog Content
+      </label>
+
       <textarea
         class="form-control"
         id="content"
         rows="3"
         name="content"
-        required
       ></textarea>
     </div>
 
