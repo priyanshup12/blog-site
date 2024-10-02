@@ -26,7 +26,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
-const contentLoc = path.join(__dirname, "./content.json")); 
+const contentLoc = path.join(__dirname, "./content.json"); 
 
 //Home Page
 app.get("/", (req, res) => {
