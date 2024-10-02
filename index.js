@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "./views")); 
 let blog_ids = 1;
-app.use(express.static("public"));
+app.use(express.static(path.join(__dirname, "/public"));
 
 // app.use(bodyParser.urlencoded({ extended: true }));
 const storage = multer.diskStorage({
@@ -26,6 +26,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage: storage });
+const contentLoc = path.join(__dirname, "./content.json")); 
 
 //Home Page
 app.get("/", (req, res) => {
@@ -34,7 +35,7 @@ app.get("/", (req, res) => {
 
 //Blog-Menu
 app.get("/blogs", (req, res) => {
-  fs.readFile("./content.json", "utf-8", (err, jsonContent) => {
+  fs.readFile(contentLoc, "utf-8", (err, jsonContent) => {
     if (err) {
       console.error("Error while reading data:", err);
       return;
@@ -55,7 +56,7 @@ app.get("/view", (req, res) => {
   let reqData = req.query.id;
   console.log(reqData);
   let blogsContent;
-  fs.readFile("./content.json", "utf-8", (err, jsonContent) => {
+  fs.readFile(contentLoc, "utf-8", (err, jsonContent) => {
     if (err) {
       console.error("Error while reading data:", err);
       return;
@@ -76,7 +77,7 @@ app.get("/post", (req, res) => {
 
 //posting blog
 app.post("/submit", upload.single("imgSrc"), (req, res) => {
-  fs.readFile("./content.json", "utf-8", (err, jsonString) => {
+  fs.readFile(contentLoc, "utf-8", (err, jsonString) => {
     if (err) {
       console.error("Error while reading data:", err);
       return;
@@ -96,7 +97,7 @@ app.post("/submit", upload.single("imgSrc"), (req, res) => {
       };
       blogsContent.push(uploadData);
       const updatedContent = JSON.stringify(blogsContent, null, 2);
-      fs.writeFile("./content.json", updatedContent, (writeErr) => {
+      fs.writeFile(contentLoc, updatedContent, (writeErr) => {
         if (writeErr) {
           console.error("Error while writing data:", writeErr);
         } else {
@@ -116,7 +117,7 @@ app.get("/edit", (req, res) => {
   const id = req.query.id;
   console.log("Edit blog ID: ", id);
   let blogsContent;
-  fs.readFile("./content.json", "utf-8", (err, jsonContent) => {
+  fs.readFile(contentLoc, "utf-8", (err, jsonContent) => {
     if (err) {
       console.log(err, " Error in retrireving data");
     }
@@ -132,7 +133,7 @@ app.get("/edit", (req, res) => {
 //update the data in json file
 app.post("/update", upload.single("imgSrc"), (req, res) => {
   let id = req.query.id;
-  fs.readFile("./content.json", "utf-8", (err, jsonString) => {
+  fs.readFile(contentLoc, "utf-8", (err, jsonString) => {
     if (err) {
       console.error("Error while reading data:", err);
       return;
@@ -170,7 +171,7 @@ app.post("/update", upload.single("imgSrc"), (req, res) => {
       blogsContent[id - 1] = uploadData;
       const updatedContent = JSON.stringify(blogsContent, null, 2);
 
-      fs.writeFile("./content.json", updatedContent, (writeErr) => {
+      fs.writeFile(contentLoc, updatedContent, (writeErr) => {
         if (writeErr) {
           console.error("Error while writing data:", writeErr);
         } else {
@@ -190,7 +191,7 @@ app.post("/update", upload.single("imgSrc"), (req, res) => {
 app.get("/delete", (req, res) => {
   const id = req.query.id;
   let blogsContent;
-  fs.readFile("./content.json", "utf-8", (err, jsonContent) => {
+  fs.readFile(contentLoc, "utf-8", (err, jsonContent) => {
     if (err) {
       console.log(err);
       return;
@@ -206,7 +207,7 @@ app.get("/delete", (req, res) => {
         console.log("related files are deleted");
       });
       fs.writeFile(
-        "./content.json",
+        contentLoc,
         JSON.stringify(blogsContent, null, 2),
         (writeErr) => {
           if (writeErr) {
