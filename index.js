@@ -11,7 +11,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "./views")); 
 let blog_ids = 1;
-app.use(express.static(path.join(__dirname, "/public"));
+app.use(express.static(path.join(__dirname, "/public")));
 
 // app.use(bodyParser.urlencoded({ extended: true }));
 const storage = multer.diskStorage({
