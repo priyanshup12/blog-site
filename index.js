@@ -8,6 +8,8 @@ import fs from "fs";
 const app = express();
 const port = 3000;
 const __dirname = dirname(fileURLToPath(import.meta.url));
+app.set("view engine", "ejs");
+app.set("views", path.join(__dirname, "./views")); 
 let blog_ids = 1;
 app.use(express.static("public"));
 
@@ -27,7 +29,7 @@ const upload = multer({ storage: storage });
 
 //Home Page
 app.get("/", (req, res) => {
-  res.render("index.ejs");
+  res.render("index");
 });
 
 //Blog-Menu
@@ -39,7 +41,7 @@ app.get("/blogs", (req, res) => {
     }
     try {
       const blogsContent = JSON.parse(jsonContent);
-      res.render("blogs.ejs", {
+      res.render("blogs", {
         blogCards: blogsContent,
       });
     } catch (parseError) {
@@ -60,7 +62,7 @@ app.get("/view", (req, res) => {
     }
     try {
       blogsContent = JSON.parse(jsonContent);
-      res.render("view-post.ejs", blogsContent[reqData - 1]);
+      res.render("view-post", blogsContent[reqData - 1]);
     } catch (parseError) {
       console.error("Error parsing JSON:", parseError);
     }
@@ -69,7 +71,7 @@ app.get("/view", (req, res) => {
 
 //posting blog form
 app.get("/post", (req, res) => {
-  res.render("post.ejs");
+  res.render("post");
 });
 
 //posting blog
@@ -121,7 +123,7 @@ app.get("/edit", (req, res) => {
     try {
       blogsContent = JSON.parse(jsonContent);
       console.log(blogsContent[id - 1]);
-      res.render("edit-post.ejs", blogsContent[id - 1]);
+      res.render("edit-post", blogsContent[id - 1]);
     } catch (parseError) {
       console.error("Error parsing JSON:", parseError);
     }
@@ -225,7 +227,7 @@ app.get("/delete", (req, res) => {
 
 //about page
 app.get("/about", (req, res) => {
-  res.render("about.ejs");
+  res.render("about");
 });
 
 app.listen(port, () => {
